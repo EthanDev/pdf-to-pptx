@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+data/
+.env
+.DS_Store
+.quality/
+.codex/task.json
+
+.quality/
+.codex/task.json
+request.json
+response.json
+output/

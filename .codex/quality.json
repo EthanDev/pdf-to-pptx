@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "human_gates": true,
+  "github_repo": null,
+  "vault_index": "200 Projects/PDF to PowerPoint/index.md",
+  "timeout_seconds": 120,
+  "auto_setup": true,
+  "checks": [
+    [
+      "python3",
+      "scripts/check.py"
+    ]
+  ],
+  "verify": [
+    "python3",
+    ".codex/quality-runtime/checks.py"
+  ],
+  "setup_errors": [
+    "GitHub origin unresolved; owner must choose repository and authorize publication; hosted protection remains pending"
+  ],
+  "sync_on_stop": true
+}
