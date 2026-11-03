@@ -1,7 +1,7 @@
 {
   "version": 1,
   "human_gates": true,
-  "github_repo": null,
+  "github_repo": "EthanDev/pdf-to-pptx",
   "vault_index": "200 Projects/PDF to PowerPoint/index.md",
   "timeout_seconds": 120,
   "auto_setup": true,
@@ -16,7 +16,7 @@
     ".codex/quality-runtime/checks.py"
   ],
   "setup_errors": [
-    "GitHub origin unresolved; owner must choose repository and authorize publication; hosted protection remains pending"
+    "Hosted review/protection and cloud storage implementation remain pending; repository creation is authorized and complete."
   ],
   "sync_on_stop": true
 }

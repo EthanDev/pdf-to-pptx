@@ -1,0 +1,8 @@
+PDF to PowerPoint
+
+This service source is licensed under the GNU Affero General Public License,
+version 3 only (SPDX: AGPL-3.0-only). See LICENSE.
+
+Third-party dependencies keep their own licences. PyMuPDF/MuPDF are used
+under their AGPL licensing option. No commercial Artifex licence is claimed.
+Credentials and private PDF fixtures are not included in the source distribution.

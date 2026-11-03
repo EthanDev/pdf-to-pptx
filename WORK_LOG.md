@@ -42,3 +42,13 @@ The before-fix record covers selected defects, rotation and overlapping redactio
 - D1–D5 remain: hosting/project/domain, caller token model, GitHub location/name, confirm defaults, licence arrangement.
 - Local quality checks are configured. Hosted setup is blocked because no GitHub origin is selected/authorized. Human gates remain enabled; no protected CI or authenticated hosted approval is claimed.
 - Do not create GitHub resources, push, open a PR, merge, deploy, publish fixtures or spend money without the separate approval required by the supplied plan.
+
+## Cloud Run choices and storage review — 3 November 2026
+
+This entry supersedes the open D1–D5 decisions above. The owner selected Cloud Run, a new separate Google Cloud project, its provided HTTPS hostname, public source under AGPL in `EthanDev/pdf-to-pptx`, one shared API token and the tested conversion limits. Local deployment permission is already given; do not request it again as though missing. The owner specifically requested storage review before migration.
+
+Created Google Cloud project `pdf-to-pptx-261103-7ec3` (number 497674931375) and public GitHub repository `EthanDev/pdf-to-pptx`. No Cloud Run runtime, database, queue, storage bucket or secrets have been created. Billing is not linked. Existing projects/resources are untouched. Added AGPL v3 licence and notice.
+
+Independent review found seven design gaps around upload authority, cross-system publication, storage accounting, worker deadlines, logging, expiry and callback permissions. The reviewed proposal and selected resolutions are in `docs/cloud-run-storage-review.md`; 26 proposed evaluations are in `specs/cloud-run-storage/evaluations.json`. They are requirements, not passing cloud tests. No application behavior has changed in this phase.
+
+The proposed cloud contract has direct Storage download URLs, accurate remaining expiry and conservative storage reservations, which can refuse work before the 20-job limit. These need the requested storage review before implementation. Hosted gate files were staged using the installed quality runtime; they are not protected/active approval enforcement yet. No PR has been opened or merged, and no deployment/paid AI job ran.

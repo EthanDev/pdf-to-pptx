@@ -1,0 +1,35 @@
+name: Codex SDLC artifact audit
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+permissions:
+  contents: read
+jobs:
+  codex-sdlc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check artifact trail using protected base checker
+        working-directory: candidate
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          BRANCH: ${{ github.head_ref }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ ! -f ../trusted/.codex/quality-runtime/sdlc_gate_check.py ]; then
+            echo 'Bootstrap; artifact audit pending installation. This is not an enforced gate.'
+            exit 0
+          fi
+          printf '%s' "$BODY" > "$RUNNER_TEMP/body.md"
+          python3 ../trusted/.codex/quality-runtime/sdlc_gate_check.py --base "$BASE" --branch "$BRANCH" --labels "$LABELS" --body-file "$RUNNER_TEMP/body.md" --config ../trusted/.claude/sdlc.json

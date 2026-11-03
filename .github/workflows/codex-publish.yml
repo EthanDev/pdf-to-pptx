@@ -1,0 +1,32 @@
+name: Publish Codex change for human review
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Existing repository commit to present for review
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Open a bot-authored PR without running candidate code
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[a-fA-F0-9]{40}$ ]]
+          gh api "repos/$REPOSITORY/git/commits/$SOURCE_SHA" --jq .sha > /dev/null
+          branch="automation/codex-$GITHUB_RUN_ID"
+          gh api --method POST "repos/$REPOSITORY/git/refs" -f ref="refs/heads/$branch" -f sha="$SOURCE_SHA" > /dev/null
+          printf '%s\n' 'Prepared by the Codex publishing workflow with a short-lived GitHub Actions token.' '' 'A trusted human must review the current commit and merge. The bot has no administration or production access.' > "$RUNNER_TEMP/body.md"
+          url=$(gh pr create --repo "$REPOSITORY" --head "$branch" --base "${{ github.event.repository.default_branch }}" --title "Codex change for human approval" --body-file "$RUNNER_TEMP/body.md")
+          printf 'Review and merge: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,8 @@
+{
+  "reviewers": [
+    "EthanDev"
+  ],
+  "require_pr_approval": true,
+  "requires_production": true,
+  "note": "Trusted only when loaded from the protected base branch. Builder credentials must not grant the reviewer identity. This checker verifies source review only; production deployment needs separate human authorization."
+}

@@ -1,0 +1,109 @@
+{
+  "status": "proposed, not executed",
+  "evaluations": [
+    {
+      "id": "CR-01",
+      "expect": "A job and its completed file remain readable after API and worker replacement."
+    },
+    {
+      "id": "CR-02",
+      "expect": "Overlapping API revisions share status, global active limit and stored-size admission counters."
+    },
+    {
+      "id": "CR-03",
+      "expect": "Crash after job/outbox save but before task creation is repaired; ambiguous task-create response does not create duplicate logical jobs."
+    },
+    {
+      "id": "CR-04",
+      "expect": "Concurrent delivery claims one active attempt; replay after completion acknowledges without conversion."
+    },
+    {
+      "id": "CR-05",
+      "expect": "Killed worker is retried after lease expiry; stale completion cannot replace a newer result or change counters twice."
+    },
+    {
+      "id": "CR-06",
+      "expect": "A failed attempt cannot publish a partial file; upload generation, size and winning attempt are verified before done."
+    },
+    {
+      "id": "CR-07",
+      "expect": "Worker identity cannot read Firestore, list/read unrelated objects, access secrets, invoke unrelated services or modify final result objects."
+    },
+    {
+      "id": "CR-08",
+      "expect": "Upload policy rejects another job/key and oversized content; all signed capabilities expire promptly."
+    },
+    {
+      "id": "CR-09",
+      "expect": "A deck greater than 32 MiB and within 300 MB can upload and download without buffering the whole file in the API."
+    },
+    {
+      "id": "CR-10",
+      "expect": "Queue exhaustion/dead delivery results in eventual failed state and one capacity release, never permanently active jobs."
+    },
+    {
+      "id": "CR-11",
+      "expect": "Expiry blocks new downloads exactly at 24 hours; cleanup removes objects and reconciles counters, with bounded soft-delete/version retention."
+    },
+    {
+      "id": "CR-12",
+      "expect": "Application/task logs omit tokens, source URLs, callback credentials and policies. Generated download signatures never appear in Cloud Run URLs; legacy query URLs are excluded from retained/exported request logs with an explicit ingestion limitation."
+    },
+    {
+      "id": "CR-13",
+      "expect": "Existing local offline suites and real MCP SDK tests pass; three-tool and REST contracts remain compatible."
+    },
+    {
+      "id": "CR-14",
+      "expect": "Public health and TLS pass; missing/wrong token is 401; valid token lists exact tools; known private-address conversion fails safely."
+    },
+    {
+      "id": "CR-15",
+      "expect": "Deployed source link resolves to matching AGPL source with no credentials, private fixtures or local-only records."
+    },
+    {
+      "id": "CR-16",
+      "expect": "Rollback uses compatible durable records, preserves completed files and never interrupts or modifies the existing AEO service."
+    },
+    {
+      "id": "CR-17",
+      "expect": "Concurrent/repeated upload to the same attempt key is rejected; signer cannot write final prefix; stale capabilities cannot overwrite completed artifacts."
+    },
+    {
+      "id": "CR-18",
+      "expect": "Crashes before/after promotion and before/after Firestore publication recover without deleting a referenced winner or leaking unaccounted objects."
+    },
+    {
+      "id": "CR-19",
+      "expect": "Reservations count staging/final copies/retries/orphans; expiry/deletion and concurrent admission never double-release storage."
+    },
+    {
+      "id": "CR-20",
+      "expect": "Delayed first delivery, parent death, native hung child, request cancellation and dispatch timeout cannot leave a reusable lease while an old conversion keeps running."
+    },
+    {
+      "id": "CR-21",
+      "expect": "Status near expiry reports accurate remaining lifetime; direct Storage signed links expire no later than the job and cannot expose another object."
+    },
+    {
+      "id": "CR-22",
+      "expect": "Effective Cloud Run/Storage/Tasks logging and all inherited sinks are inspected; no guarantee of pre-ingestion redaction is inferred from exclusion filters."
+    },
+    {
+      "id": "CR-23",
+      "expect": "Worker capabilities cannot invoke maintenance, operate on another job, finish another attempt or substitute a coordinator URL."
+    },
+    {
+      "id": "CR-24",
+      "expect": "HTTP/task lease conflicts do not exhaust the three claimed-conversion-attempt budget; a delayed delivery can recover before the absolute job deadline."
+    },
+    {
+      "id": "CR-25",
+      "expect": "An upload held open before capability expiry and completed after cleanup cannot produce an unaccounted object; uncertain reservations remain charged until a proven terminal/fenced outcome."
+    },
+    {
+      "id": "CR-26",
+      "expect": "links_expire_in matches the actual generation-pinned signed GET deadline; expires_at describes retention and cannot be extended by polling."
+    }
+  ]
+}

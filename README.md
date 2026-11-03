@@ -2,7 +2,7 @@
 
 Send a direct HTTPS link to a PDF and get an editable PowerPoint. Text becomes one text box per line. Photos, charts, table grids, shapes and logos remain in the slide's background picture. No AI, paid key or OCR is used.
 
-**Status: local prototype being verified, not a public service.** No GitHub repository or public address has been selected. See [verification results](docs/verification.md) and the owner decisions below. This project is separate from AEO Articles and uses none of its credentials or cloud resources.
+**Status: locally verified prototype; Cloud Run storage migration is under review.** The owner selected a separate Google Cloud project, its provided HTTPS address and public AGPL source in `EthanDev/pdf-to-pptx`. No Cloud Run runtime is deployed yet. See [verification results](docs/verification.md) and the owner decisions below. This project is separate from AEO Articles and uses none of its credentials or cloud resources.
 
 ## Run locally
 
@@ -112,8 +112,10 @@ docker run --rm pdf-to-pptx python tests/test_hardening.py
 
 Tests use fake transports and a loopback fixture server. They make no external PDF requests and no paid AI calls. `allow_private` is a Python-only test seam, never an API or environment setting. `tests/container_smoke.py` uses a temporary token, a unique named volume and loopback port; it removes only its own container and volume. Pass `--context NAME` for a non-default Docker engine.
 
-## Licence and decisions before launch
+## Licence and Cloud Run migration
 
-PyMuPDF is offered under AGPL or a commercial Artifex licence. No licence choice is made here. Have the company's legal contact confirm the permitted distribution/service arrangement before public launch. This project does not yet grant a licence to its own source.
+This service source uses **AGPL-3.0-only**; see [LICENSE](LICENSE) and [NOTICE](NOTICE). Third-party packages retain their own licences. PyMuPDF/MuPDF use their AGPL option; no commercial licence is claimed.
 
-The owner still needs to choose: hosting/project/domain; one shared token or separate caller tokens; GitHub location/name; confirmation of the limits; and the licence approach. No public repository, fixture publication, cloud resources, deployment or paid service is authorized by local tests. See [the supplied plan](PLAN.md), sections 9 and 13.
+The owner selected a separate Google Cloud project, Cloud Run's provided HTTPS hostname, public source in `EthanDev/pdf-to-pptx`, one shared API token and the tested conversion defaults. The current disk-backed implementation has not yet been migrated or deployed.
+
+The [storage review](docs/cloud-run-storage-review.md) proposes durable job records/files and queued workers with no project roles. It explicitly covers retry races, upload isolation, storage reservations, expiry and platform log handling. Some caller-visible details change: direct Storage download links, accurate remaining retention and stricter accounted storage admission. The proposed evaluations are not test results. Public fixture publication and owner click-to-edit acceptance remain separate pending steps.
