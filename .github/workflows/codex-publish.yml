@@ -1,5 +1,8 @@
 name: Publish Codex change for human review
 on:
+  push:
+    branches: [review/cloud-run-storage]
+    paths: [.github/workflows/codex-publish.yml]
   workflow_dispatch:
     inputs:
       source_sha:
@@ -10,6 +13,7 @@ permissions:
   contents: read
 jobs:
   publish:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
