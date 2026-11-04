@@ -1,3 +1,4 @@
+# Scoped push registers this workflow; publishing runs only on manual dispatch.
 name: Publish Codex change for human review
 on:
   push:
