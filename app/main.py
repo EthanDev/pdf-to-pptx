@@ -1,7 +1,7 @@
 import asyncio, base64, contextlib, functools, hashlib, hmac, logging, os, re, time
 from typing import Any
 from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
@@ -30,7 +30,9 @@ def tool(fn):
     async def wrapped(*a, **k):
         try: return await fn(*a, **k)
         except ToolError: raise
-        except Exception as e: raise ToolError(f"{type(e).__name__}: {str(e)[:300]}")
+        except Exception as e:
+            if jobs.CLOUD: raise ToolError("The service could not complete the request. Try again later.") from None
+            raise ToolError(f"{type(e).__name__}: {str(e)[:300]}")
     return mcp.tool()(wrapped)
 
 def _sig(jid: str, name: str, exp: str) -> str: return hmac.new(LINK_KEY, f"{jid}/{name}/{exp}".encode(), hashlib.sha256).hexdigest()
@@ -41,37 +43,40 @@ def _view(j: dict) -> dict:
     out = {"job_id": j["job_id"], "state": j["state"], "created": j["created"]}
     if j["state"] == "failed": out["error"] = j.get("error", "Failed.")
     if j["state"] == "done": out |= {"pptx_url": _link(j), "links_expire_in": "24 hours", "size_bytes": j["size_bytes"], "report": j["report"]}
+    if jobs.CLOUD and j["state"] == "done":
+        url, remaining = jobs.backend.download_url(j)
+        out.update(pptx_url=url, links_expire_in=f"{remaining} seconds", expires_at=j["expires_at"])
     return out
 
 @tool
 async def convert_pdf(url: str, wait_seconds: int = 25) -> dict[str, Any]:
-    """Download the PDF at an https link and turn it into an editable PowerPoint (text becomes editable text boxes; shapes, charts and photos stay in a background picture). Waits up to wait_seconds (max 25); if not finished it returns state 'running' and a job_id: call job_status with it. Done: pptx_url is a download link valid 24 hours, report lists text boxes, any picture-only pages and warnings."""
-    try: jid = jobs.start(url)
-    except (jobs.TooManyJobs, jobs.ServiceFull) as e: raise ToolError(str(e))
+    """Download the PDF at an https link and turn it into an editable PowerPoint (text becomes editable text boxes; shapes, charts and photos stay in a background picture). Waits up to wait_seconds (max 25); if not finished it returns state 'running' and a job_id: call job_status with it. Done: pptx_url is a download link (see links_expire_in; files stay up to 24 hours), report lists text boxes, any picture-only pages and warnings."""
     deadline = time.monotonic() + max(0, min(wait_seconds, WAIT_S))
+    try: jid = await asyncio.to_thread(jobs.start, url)
+    except (jobs.TooManyJobs, jobs.ServiceFull) as e: raise ToolError(str(e))
     while True:
-        j = jobs.get(jid)
+        j = await asyncio.to_thread(jobs.get, jid)
         if j is None: raise ToolError("The job record could not be found. Start it again.")
         if j["state"] in ("done", "failed") or time.monotonic() >= deadline: break
         await asyncio.sleep(0.3)
-    return _view(j)
+    return await asyncio.to_thread(_view, j)
 
 @tool
 async def job_status(job_id: str) -> dict[str, Any]:
     """State of a conversion: queued, running, done or failed. When done it has a fresh pptx_url."""
-    j = jobs.get(job_id)
+    j = await asyncio.to_thread(jobs.get, job_id)
     if not j: raise ToolError("No such job. (If the service restarted, start it again.)")
-    return _view(j)
+    return await asyncio.to_thread(_view, j)
 
 @tool
 async def get_pptx_file(job_id: str) -> dict[str, Any]:
     """The finished PowerPoint itself as base64, with its sha256. Files over MAX_INLINE_BYTES (3 MB) fail with too_large: use pptx_url."""
-    j = jobs.get(job_id)
+    j = await asyncio.to_thread(jobs.get, job_id)
     if not j: raise ToolError("No such job.")
     if j["state"] == "failed": raise ToolError(f"That job failed: {j.get('error')}")
     if j["state"] != "done": raise ToolError("That job is not finished.")
     if j["size_bytes"] > MAX_INLINE: raise ToolError(f"too_large: the file is {j['size_bytes']} bytes (limit {MAX_INLINE}). Use pptx_url from job_status.")
-    data = (jobs.DATA / job_id / j["file"]).read_bytes()
+    data = await asyncio.to_thread(jobs.read_file, j)
     return {"job_id": job_id, "filename": j["file"], "media_type": PPTX_TYPE, "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "data_base64": base64.b64encode(data).decode()}
 
 mcp_app = mcp.streamable_http_app()
@@ -90,13 +95,18 @@ def check(auth: str | None):
 
 @app.middleware("http")
 async def mcp_auth(request, call_next):
-    await asyncio.to_thread(jobs._clean)
+    if not jobs.CLOUD:
+        await asyncio.to_thread(jobs._clean)
     if request.url.path.rstrip("/") == "/mcp":
         try: check(request.headers.get("authorization"))
         except HTTPException as e:
-            from fastapi.responses import JSONResponse
             return JSONResponse({"detail": e.detail}, status_code=401, headers={"WWW-Authenticate": "Bearer"})
-    return await call_next(request)
+    try:
+        return await call_next(request)
+    except Exception:
+        if jobs.CLOUD:
+            return JSONResponse({"detail": "The service is temporarily unavailable."}, status_code=503)
+        raise
 
 class ConvertReq(BaseModel):
     url: str
@@ -123,6 +133,18 @@ def file(job_id: str, name: str, exp: str | None = None, sig: str | None = None,
     if not ok: check(authorization)
     j = jobs.get(job_id)
     if not j or j["state"] != "done" or j["file"] != name: raise HTTPException(404, "No such file")
+    if jobs.CLOUD:
+        return StreamingResponse(jobs.backend.stream_file(j), media_type=PPTX_TYPE,
+                                 headers={"Content-Disposition": f'attachment; filename="{name}"'})
     return FileResponse(jobs.DATA / job_id / name, media_type=PPTX_TYPE, filename=name)
+
+@app.get("/source")
+def source():
+    return {"license": "AGPL-3.0-only", "source": os.environ.get("SOURCE_URL", "https://github.com/EthanDev/pdf-to-pptx"),
+            "revision": os.environ.get("SOURCE_REVISION", "local")}
+
+if jobs.CLOUD:
+    from cloud_routes import router
+    app.include_router(router)
 
 app.mount("/", mcp_app)      # /mcp (the MCP endpoint); keep last so the routes above win

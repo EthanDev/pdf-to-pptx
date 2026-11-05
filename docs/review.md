@@ -9,3 +9,9 @@ Confirmed findings and fixes:
 3. Removed the remaining dead P15 test branch and redundant toggles; added the missing-record tool check. WORK_LOG.md now exists and records results.
 
 The re-review found no remaining correctness/security blocker in the inspected code. It independently ran all 16 hardening tests. Docker and real-deck visuals were checked by the implementing agent, not independently repeated by the reviewer. Public/live-link acceptance, owner click-to-edit, full per-defect historic red/green evidence and hosting/licence/repository decisions remain pending. Passing local tests does not establish production readiness or hosted approval enforcement.
+
+## Cloud implementation review — 5 November 2026
+
+A fresh-context reviewer examined the state protocol, Google adapters, scoped callbacks, worker and deployment tooling. Its concrete findings were fixed and regression tested: absolute signed-link expiry, clean pinned-source/digest deployment, recovery from versionless secrets, numeric enabled secret versions, URL-preserving redeploy and strict live-proof rejection criteria. HTTP tests also caught an exception-handler shadowing error. Real Linux tests caught legitimate PID1 parent handling; the supervisor now owns scratch cleanup and verifies the expected parent PID.
+
+No remaining confirmed code blockers were identified in the focused final review. This does not grant release approval or establish live Google guarantees. Cloud reauthentication, provider proofs, IAM/logging/retention checks, the native artifact-format compatibility gap and final source review remain pending.

@@ -160,3 +160,10 @@ For REST, send JSON to `$BASE/convert` with the same Authorization and Content-T
 ## Acceptance
 
 The complete pass/fail table and current local-versus-public evidence are in [verification results](verification.md). Read the [README](../README.md) for defaults, limitations and the outstanding hosting/licence decisions. The local Python and TypeScript SDK versions may differ; run the smoke test before relying on a new client version.
+
+
+## Cloud backend
+
+Cloud mode keeps jobs in Firestore and results in private Cloud Storage. `pptx_url` is a direct signed Storage URL with the exact object generation; it needs no Authorization header. **Never forward your API Bearer token to the download host.** `links_expire_in` describes the actual returned URL lifetime (up to fifteen minutes), and numeric Unix `expires_at` describes the job's completion-plus-24-hour retention deadline. Polling can refresh a URL while retention remains, but cannot extend retention.
+
+The compatibility `/files` route still accepts Bearer or its existing HMAC query and streams the result. All job/file reads enforce retention even with a valid token. The cloud storage budget reserves staging/final/retry space before granting uploads, so work can be refused before the twenty-job ceiling. Source and deployed revision are exposed by `GET /source`. See [implementation and release checks](cloud-run-storage-implementation.md); live release is not yet claimed.

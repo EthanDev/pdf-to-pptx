@@ -162,3 +162,19 @@ def _run(jid, url, limits):
             (directory / name).unlink(missing_ok=True)
         record['finished_at'] = time.time()
         _write(jid, record)
+
+
+def read_file(record):
+    return (DATA / record['job_id'] / record['file']).read_bytes()
+
+
+CLOUD = os.environ.get('JOB_BACKEND') == 'gcp'
+backend = None
+if CLOUD:
+    import cloud_google
+    from cloud_state import Full, TooMany
+    backend = cloud_google.build()
+    start, get = backend.start, backend.get
+    _clean, recover = backend.clean_throttled, backend.recover
+    read_file = backend.read_file
+    ServiceFull, TooManyJobs = Full, TooMany

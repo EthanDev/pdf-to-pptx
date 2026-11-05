@@ -1,0 +1,16 @@
+*
+!Dockerfile
+!requirements.txt
+!requirements.lock
+!LICENSE
+!NOTICE
+!app/
+!app/**
+!tests/
+!tests/**
+app/__pycache__/
+tests/__pycache__/
+!deploy/
+!deploy/**
+!scripts/
+!scripts/**
