@@ -1,0 +1,9 @@
+{
+  "source_commit": "52e0671e554e415ba454341cdbd520b943d5de2f",
+  "owner_decision": "Owner approved this contract in the Codex chat on 4 November 2026 and authorized a review PR. Deployment was already authorized.",
+  "authenticated_github_approval": "pending; chat approval is not represented as a GitHub review",
+  "artifacts": {
+    "docs/cloud-run-storage-review.md": "3034e4ba473332951f88ab89871ad6737ce2be7a7035323cdfee30d64ce94812",
+    "specs/cloud-run-storage/evaluations.json": "568270b9651399439c897675f9abd82b87912c474af1c7132d9a647938101f04"
+  }
+}
