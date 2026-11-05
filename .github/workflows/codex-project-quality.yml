@@ -13,3 +13,6 @@ jobs:
       - run: python3 -m pip install -r requirements.lock
       - name: Run project checks
         run: python3 .codex/quality-runtime/checks.py
+      - name: Test reviewed-contract compatibility
+        if: ${{ hashFiles('.github/scripts/test_reviewed_contract.py') != '' }}
+        run: python3 .github/scripts/test_reviewed_contract.py

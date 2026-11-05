@@ -1,0 +1,33 @@
+{
+  "marker": "Contract: cloud-run-storage",
+  "approval_pr": 1,
+  "approved_head": "1468689439bb13891d3e0eb28b12a5d71061b4cc",
+  "manifest": "docs/reviews/cloud-run-storage-manifest.json",
+  "allowed_paths": [
+    "app/",
+    "tests/",
+    "deploy/",
+    "scripts/",
+    "docs/",
+    ".codex/quality.json",
+    ".gcloudignore",
+    "Dockerfile",
+    "requirements.txt",
+    "requirements.lock",
+    "README.md",
+    "WORK_LOG.md",
+    ".github/workflows/codex-project-quality.yml"
+  ],
+  "unchanged_guards": [
+    ".codex/quality-runtime/approvals.py",
+    ".codex/quality-runtime/approval-policy.json",
+    ".github/workflows/codex-project-approvals.yml",
+    ".github/CODEOWNERS",
+    ".codex/quality-runtime/sdlc_gate_check.py",
+    ".github/workflows/codex-project-sdlc.yml",
+    ".github/workflows/codex-publish.yml",
+    ".github/scripts/reviewed_contract.py",
+    ".github/scripts/test_reviewed_contract.py",
+    ".github/reviewed-contract.json"
+  ]
+}
