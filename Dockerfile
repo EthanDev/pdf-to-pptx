@@ -1,10 +1,15 @@
 FROM python:3.12-slim
 WORKDIR /srv
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt requirements.lock ./
+RUN pip install --no-cache-dir -r requirements.lock
 RUN useradd --uid 10001 --create-home converter && mkdir /data && chown 10001:10001 /data
+ARG SOURCE_REVISION=local
+ENV SOURCE_REVISION=$SOURCE_REVISION
+COPY LICENSE NOTICE ./
 COPY app app
 COPY tests tests
+COPY deploy deploy
+COPY scripts scripts
 ENV DATA_DIR=/data PYTHONPATH=/srv/app PYTHONDONTWRITEBYTECODE=1
 VOLUME /data
 USER 10001:10001

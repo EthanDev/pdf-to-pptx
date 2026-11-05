@@ -52,3 +52,19 @@ Created Google Cloud project `pdf-to-pptx-261103-7ec3` (number 497674931375) and
 Independent review found seven design gaps around upload authority, cross-system publication, storage accounting, worker deadlines, logging, expiry and callback permissions. The reviewed proposal and selected resolutions are in `docs/cloud-run-storage-review.md`; 26 proposed evaluations are in `specs/cloud-run-storage/evaluations.json`. They are requirements, not passing cloud tests. No application behavior has changed in this phase.
 
 The proposed cloud contract has direct Storage download URLs, accurate remaining expiry and conservative storage reservations, which can refuse work before the 20-job limit. These need the requested storage review before implementation. Hosted gate files were staged using the installed quality runtime; they are not protected/active approval enforcement yet. No PR has been opened or merged, and no deployment/paid AI job ran.
+
+## Cloud storage implementation — 5 November 2026
+
+Verified owner approval and merge of PR #1 at `550b2315f444e52e8adf2487fcaa2f2d3d317d2d`. Implemented the cloud backend, isolated worker, callbacks, deterministic queue/outbox, lease/retry and reservation protocols, exact-generation publication, expiry, deployment tooling and live proof runner. The original contract and 26 evaluation definitions remain unchanged.
+
+Upload safety uses scoped cancellable resumable sessions with generation-zero preconditions and retained zero-byte fences. This implements the contract's required safe-path refinement; actual provider proof is still mandatory before deployment. Do not substitute mock storage tests for the held-upload/fence/resume check.
+
+Validation: original converter/API suite and real MCP HTTP suite pass; 46 host regression cases pass. Python 3.12 image passes the same suites with one host/CI-only Git archive check skipped; that check passed on the host. Native Linux parent-death, watchdog and request-cancellation checks pass. Container is healthy, uid10001, named-volume ownership correct, and secret/signature log scan clear. Image/source parity was verified across27 code/dependency/licence files. Evidence is under `.quality/deployment/`.
+
+Independent review caught and verified fixes for delayed signing extending expiry, dirty-source image attribution, interrupted secret setup, disabled-latest version selection, URL preservation on redeploy, and false-positive provider proof logic. Linux testing additionally caught/fixed legitimate PID1 parent handling. No approval fields or receipts were synthesized.
+
+Google deployment remains blocked: `ethan@cashew.ai` requires reauthentication; the active personal account cannot access this project. The owner was asked to run `gcloud auth login ethan@cashew.ai`. No new billing link, cloud services, IAM, bucket, queue, database or secret mutations were performed during implementation. Existing deployment permission persists.
+
+Workflow compatibility gap: the protected native SDLC audit does not recognize the external contract/manifest approval format used in PR #1. A separately reviewed compatibility change is required to recognize the real approval evidence; do not self-sign native wrapper fields or disable the gate. Branch protection is configured/read back with required tests, source approval and artifact checks; full release proof remains pending.
+
+Local Linux verification used only a new task-owned Colima profile. Its internal-drive copy was removed after disk exhaustion; the working test VM/cache now live under `/Volumes/Main drive/.pptx-01a19b42`, with an ownership marker. Pre-existing caches/user data were preserved. No extra Git worktree or AEO/partner repository changes were made.

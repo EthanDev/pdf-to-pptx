@@ -6,6 +6,9 @@ import convert
 
 
 def run(job_dir: str, limits: dict):
+    if limits.get("parent_death"):
+        from cloud_worker import parent_death
+        parent_death(limits["expected_parent"])
     directory = Path(job_dir)
     try:
         opts = {key: limits[key] for key in ('max_pages', 'max_page_pt', 'max_page_pixels', 'max_pptx_mb')}
